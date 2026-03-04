@@ -1,5 +1,12 @@
 from flask import Flask, render_template, jsonify, request
 import os
+from pathlib import Path
+
+# Charger les variables d'environnement depuis .env
+from dotenv import load_dotenv
+env_path = Path(__file__).parent / '.env'
+load_dotenv(env_path)
+
 from tester.runner import TestRunner
 from storage import TestStorage
 
