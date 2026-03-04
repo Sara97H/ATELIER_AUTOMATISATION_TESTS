@@ -13,7 +13,208 @@ Votre mission :
 👉 Concevoir et implémenter une solution d’automatisation des tests.  
 👉 Déployer votre solution sur PythonAnywhere.  
 👉 Mesurer et exposer des indicateurs de qualité de service.    
-  
+
+## 🚀 Quick Start (Local Development)
+
+### Prerequisites
+- Python 3.9+
+- pip
+- IPSTACK API Key: `7ead199380666b8913f0ecf608ff9996`
+
+### Installation
+
+```bash
+# 1. Install dependencies
+pip install -r requirements.txt
+
+# 2. Create .env file (optional - already included)
+# cp .env.example .env
+# Edit .env and set your IPSTACK_API_KEY
+
+# 3. Run local tests
+python run_tests_local.py
+
+# 4. Start Flask app locally
+python flask_app.py
+# Then visit: http://localhost:5000/dashboard
+```
+
+### Project Structure
+
+```
+.
+├── flask_app.py           # Flask app with /dashboard, /api/run endpoints
+├── storage.py             # SQLite storage for test runs
+├── requirements.txt       # Python dependencies
+├── .env                   # Environment variables (API key)
+├── tester/
+│   ├── __init__.py
+│   ├── client.py         # HTTP client wrapper (timeout, retry)
+│   ├── tests.py          # 7 test cases (contract + robustness)
+│   └── runner.py         # Test runner + QoS metrics
+├── templates/
+│   ├── consignes.html    # Instructions page
+│   └── dashboard.html    # Beautiful test dashboard
+└── API_CHOICE.md         # API documentation
+```
+
+### API Features
+
+✅ **7 Test Cases:**
+- Valid IP returns 200
+- Required fields present
+- Field types correct
+- Latitude/Longitude validation
+- Invalid IP error detection
+- QoS latency threshold
+- Content-Type JSON
+
+✅ **Robustness:**
+- 5s timeout
+- 1 retry on failure
+- Rate limit handling (429)
+- 20 requests max per run
+
+✅ **QoS Metrics:**
+- Average latency
+- P95 latency
+- Availability %
+- Error rate
+
+✅ **Dashboard:**
+- Beautiful real-time UI
+- Test results display
+- Historical data table
+- Run execution button
+
+### Endpoints
+
+```
+GET  /                  # Home page with instructions
+GET  /dashboard         # Test results dashboard  
+POST /api/run           # Execute tests (JSON response)
+GET  /api/dashboard     # Get dashboard data (JSON)
+GET  /health            # Service health check (Bonus)
+```
+
+### Example Response
+
+```json
+{
+  "api": "IPSTACK",
+  "timestamp": "2026-03-04T16:00:00.000000",
+  "summary": {
+    "passed": 7,
+    "failed": 0,
+    "total": 7,
+    "error_rate": 0.0,
+    "latency_ms_avg": 245.3,
+    "latency_ms_p95": 380.5,
+    "availability_percent": 100.0
+  },
+  "tests": [...]
+}
+```
+
+## 🌐 Deployment on PythonAnywhere
+
+### 1. Create Account
+- Go to https://www.pythonanywhere.com
+- Sign up (your username: `sarahaddad`)
+- Click "Beginner account" (free tier)
+
+### 2. Upload Code
+```bash
+# Via Git Clone:
+git clone <your-repo-url> ~/mysite
+cd ~/mysite
+
+# Or upload via Web
+```
+
+### 3. Configure Web App
+1. Go to Web tab
+2. Create new web app
+3. Choose "Manual configuration"
+4. Select Python 3.10
+5. Set source directory to your project folder
+
+### 4. Configure WSGI File
+Edit `/var/www/sarahaddad_pythonanywhere_com_wsgi.py`:
+
+```python
+import sys
+import os
+
+path = '/home/sarahaddad/mysite'
+if path not in sys.path:
+    sys.path.append(path)
+
+os.chdir(path)
+
+# Load environment variables
+from dotenv import load_dotenv
+load_dotenv()
+
+from flask_app import app
+application = app
+```
+
+### 5. Configure Virtual Environment
+```bash
+# In PythonAnywhere bash:
+mkvirtualenv --python=/usr/bin/python3.10 myenv
+pip install -r requirements.txt
+pip install python-dotenv
+```
+
+### 6. Add Scheduled Task (Bonus - Auto-Run Tests)
+In PythonAnywhere Web tab → Scheduled tasks:
+```
+Daily 2:00 AM: wget https://sarahaddad.pythonanywhere.com/api/run?token=secret
+```
+
+### 7. Verify Deployment
+- Visit: https://sarahaddad.pythonanywhere.com/
+- Check logs: https://sarahaddad.pythonanywhere.com.error.log
+
+## 📊 Evaluation Checklist (20 points)
+
+- [ ] **API Choice + Contract** (2 pts) - API_CHOICE.md completed
+- [ ] **Test Quality** (6 pts) - 7 tests (not 6), pertinent assertions
+- [ ] **Robustness** (4 pts) - Timeout/retry/429 handling
+- [ ] **QoS Metrics** (4 pts) - Latency + error rate + availability
+- [ ] **Dashboard** (4 pts) - Beautiful, clear, historical data
+
+**Bonus (+2 pts):**
+- [ ] Scheduled execution (cron task)
+- [ ] `/health` endpoint
+- [ ] Export JSON feature
+
+## 🐛 Troubleshooting
+
+### Error Logs Location
+```
+Access log: https://sarahaddad.pythonanywhere.com.access.log
+Error log:  https://sarahaddad.pythonanywhere.com.error.log  
+Server log: https://sarahaddad.pythonanywhere.com.server.log
+```
+
+### Common Issues
+
+**"ModuleNotFoundError: No module named 'tester'"**
+- Ensure PYTHONPATH includes project folder
+- Check virtualenv activation in WSGI
+
+**"IPSTACK_API_KEY not found"**
+- Add `.env` file with `IPSTACK_API_KEY=<your-key>`
+- Or set in PythonAnywhere Web settings
+
+**"connection timeout"**
+- IPSTACK might be slow/down
+- Check latency in dashboard
+- Increase timeout in `client.py` if needed
+
 -------------------------------------------------------------------------------------------------------
 🧩 Séquence 1 : GitHUB
 -------------------------------------------------------------------------------------------------------
