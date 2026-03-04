@@ -148,7 +148,8 @@ class TestStorage:
                         'latency_ms_avg': row['latency_ms_avg'],
                         'latency_ms_p95': row['latency_ms_p95'],
                         'availability_percent': row['availability_percent']
-                    }
+                    },
+                    'report': json.loads(row['report_json'])
                 }
             return None
     
