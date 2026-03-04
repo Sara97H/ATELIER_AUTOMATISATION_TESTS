@@ -35,7 +35,8 @@ def run_tests():
     """Exécute les tests et enregistre le résultat"""
     try:
         # Vérifie la clé API
-        api_key = os.getenv('IPSTACK_API_KEY')
+        api_key= os.getenv("IPSTACK_API_KEY", "7ead199380666b8913f0ecf608ff9996")
+        print(api_key)
         if not api_key:
             return jsonify({'error': 'IPSTACK_API_KEY not configured'}), 500
         
